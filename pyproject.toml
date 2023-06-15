@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "chessonline"
+version = "0.1.0"
+description = ""
+authors = ["vladimir titov <v.v.titov94@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.97.0"
+websockets = "^11.0.3"
+uvicorn = "^0.22.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
