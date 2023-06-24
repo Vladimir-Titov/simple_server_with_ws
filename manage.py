@@ -24,6 +24,7 @@ async def websocket_endpoint(
             data = await manager.get_message(websocket)
             message = Message.parse_obj(data)
             result = await chess_service.process(message)
+            print('response from server: ', result)
             await manager.reply(result, websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)

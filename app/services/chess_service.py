@@ -60,4 +60,4 @@ class ChessService:
             return {}
         elif message.event_type == EventType.START_BOARD:
             return self.start_board_event()
-        return {'event_type': None, 'response': 'unsupported type'}
+        return {'event_type': None, 'payload': 'unsupported type'}
