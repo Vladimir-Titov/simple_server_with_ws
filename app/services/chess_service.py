@@ -35,7 +35,7 @@ class ChessService:
             'event_type': EventType.ONLINE_PLAYERS,
             'payload': {
                 'online_players': [
-                    {name: player.websocket.client} for name, player in
+                    {name: str(player.websocket.client)} for name, player in
                     self.connection_manager.active_connections.items()
                 ],
                 'count_online_players': len(self.connection_manager.active_connections),
