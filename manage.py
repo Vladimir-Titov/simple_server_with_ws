@@ -2,6 +2,7 @@ import orjson
 import uvicorn
 from fastapi import FastAPI, WebSocket, Depends
 from pydantic import ValidationError
+from starlette.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
 from typing_extensions import Annotated
 
@@ -12,6 +13,13 @@ from web.dependecies import chess_service
 from web.dependecies.common import connection_manager
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.websocket("/ws")
@@ -39,6 +47,7 @@ async def websocket_endpoint(
         manager.disconnect(websocket)
     except Exception:
         manager.disconnect(websocket)
+
 
 @app.get("/active_connections")
 async def get_active_connections(manager: Annotated[ConnectionManager, Depends(connection_manager)]):
