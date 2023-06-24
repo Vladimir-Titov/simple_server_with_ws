@@ -42,7 +42,8 @@ async def websocket_endpoint(
             }
         }))
         manager.disconnect(websocket)
-
+    except Exception:
+        manager.disconnect(websocket)
 
 @app.get("/active_connections")
 async def get_active_connections(manager: Annotated[ConnectionManager, Depends(connection_manager)]):
