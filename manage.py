@@ -31,7 +31,7 @@ async def websocket_endpoint(
     except WebSocketDisconnect as err:
         await websocket.send_text(orjson.dumps({
             'WebSocketError': {
-                'message': err,
+                'message': str(err),
             }
         }))
         manager.disconnect(websocket)
