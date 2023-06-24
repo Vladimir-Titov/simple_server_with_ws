@@ -1,5 +1,7 @@
+import orjson
 import uvicorn
 from fastapi import FastAPI, WebSocket, Depends
+from pydantic import ValidationError
 from starlette.websockets import WebSocketDisconnect
 from typing_extensions import Annotated
 
@@ -26,7 +28,19 @@ async def websocket_endpoint(
             result = await chess_service.process(message)
             print('response from server: ', result)
             await manager.reply(result, websocket)
-    except WebSocketDisconnect:
+    except WebSocketDisconnect as err:
+        await websocket.send_text(orjson.dumps({
+            'WebSocketError': {
+                'message': err,
+            }
+        }))
+        manager.disconnect(websocket)
+    except ValidationError:
+        await websocket.send_text(orjson.dumps({
+            'WebSocketError': {
+                'message': 'unsupported event',
+            }
+        }))
         manager.disconnect(websocket)
 
 
