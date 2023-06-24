@@ -22,3 +22,22 @@ start_game_response = {
         'game_id': '3fa85f64-5717-4562-b3fc-2c963f66afa6',
     }
 }
+
+start_board_message = {
+    'event_type': 'START_BOARD',
+    'payload': {},
+}
+
+start_board_response = {
+    'event_type': 'START_BOARD',
+    'payload': {
+        'board': [
+            {
+                "piece": "king",
+                "color": "white",
+                "square": "e1",
+                "id": "1",
+            },
+        ]
+    }
+}

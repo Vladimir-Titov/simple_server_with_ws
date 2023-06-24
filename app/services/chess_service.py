@@ -4,6 +4,7 @@ from uuid import uuid4
 from app.models.common import EventType
 from app.models.message import Message
 from app.services.connect_manager import ConnectionManager
+from board import BOARD
 
 
 class ChessService:
@@ -21,7 +22,7 @@ class ChessService:
             for player in self.connection_manager.active_connections.values():
                 if player.ready_to_game and ready_player.name != player.name:
                     return {
-                        'event_type': 'GAME_STARTED',
+                        'event_type': EventType.START_GAME,
                         'payload': {
                             'you': message.from_,
                             'opponent': player.name,
@@ -31,7 +32,7 @@ class ChessService:
 
     def get_online_players(self):
         return {
-            'event_type': 'ONLINE_PLAYERS',
+            'event_type': EventType.ONLINE_PLAYERS,
             'payload': {
                 'online_players': [
                     {name: player.websocket.client} for name, player in
@@ -41,6 +42,15 @@ class ChessService:
             }
         }
 
+    @staticmethod
+    def start_board_event():
+        return {
+            'event_type': EventType.START_BOARD,
+            'payload': {
+                'board': BOARD,
+            },
+        }
+
     async def process(self, message: Message):
         if message.event_type == EventType.ONLINE_PLAYERS:
             return self.get_online_players()
@@ -48,4 +58,6 @@ class ChessService:
             return await self.start_game(message)
         elif message.event_type == EventType.MOVE:
             return {}
+        elif message.event_type == EventType.START_BOARD:
+            return self.start_board_event()
         return {'event_type': None, 'response': 'unsupported type'}
