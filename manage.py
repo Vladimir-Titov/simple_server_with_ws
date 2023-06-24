@@ -29,11 +29,6 @@ async def websocket_endpoint(
             print('response from server: ', result)
             await manager.reply(result, websocket)
     except WebSocketDisconnect as err:
-        await websocket.send_text(orjson.dumps({
-            'WebSocketError': {
-                'message': str(err),
-            }
-        }))
         manager.disconnect(websocket)
     except ValidationError:
         await websocket.send_text(orjson.dumps({
