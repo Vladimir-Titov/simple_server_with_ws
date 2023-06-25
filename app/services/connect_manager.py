@@ -5,8 +5,8 @@ from typing import Dict
 import orjson
 from starlette.websockets import WebSocket
 
-
 names = ['Vova', 'Denis', 'Test', 'Kto-to tam', 'Chess']
+
 
 @dataclass
 class Player:
@@ -26,7 +26,7 @@ class ConnectionManager:
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        name = websocket.headers.get('name', random.choice())
+        name = websocket.headers.get('name', random.choice(names))
         self.active_connections[name] = Player(name, websocket)
 
     def disconnect(self, websocket: WebSocket):

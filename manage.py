@@ -49,6 +49,13 @@ async def websocket_endpoint(
         manager.disconnect(websocket)
 
 
+@app.websocket("/echo")
+async def echo_socket(websocket: WebSocket):
+    await websocket.accept()
+    data = await websocket.receive_text()
+    await websocket.send_text(f'echo from server: {data}')
+
+
 @app.get("/active_connections")
 async def get_active_connections(manager: Annotated[ConnectionManager, Depends(connection_manager)]):
     return {'online': [(client.name, client.ready_to_game) for client in manager.active_connections.values()]}

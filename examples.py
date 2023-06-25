@@ -1,6 +1,6 @@
 online_message = {
     'event_type': 'ONLINE_PLAYERS',
-    'payload': None,
+    'payload': {},
 }
 online_message_response = {
     'event_type': 'ONLINE_PLAYERS',
@@ -15,7 +15,7 @@ start_game_message = {
     'payload': None,
 }
 start_game_response = {
-    'event_type': 'GAME_STARTED',
+    'event_type': 'START_GAME',
     'payload': {
         'you': 'player1_name',
         'opponent': 'player2_name',
