@@ -51,9 +51,11 @@ async def websocket_endpoint(
 
 @app.websocket("/echo")
 async def echo_socket(websocket: WebSocket):
-    await websocket.accept()
-    data = await websocket.receive_text()
-    await websocket.send_text(f'echo from server: {data}')
+    while True:
+        await websocket.accept()
+        data = await websocket.receive_text()
+        print('get from client:', data)
+        await websocket.send_text(f'echo from server: {data}')
 
 
 @app.get("/active_connections")
