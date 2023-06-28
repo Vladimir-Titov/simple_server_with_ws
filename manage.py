@@ -1,16 +1,12 @@
-import orjson
 import uvicorn
-from fastapi import FastAPI, WebSocket, Depends
-from pydantic import ValidationError
+from fastapi import FastAPI, Depends, Header
 from starlette.middleware.cors import CORSMiddleware
-from starlette.websockets import WebSocketDisconnect
 from typing_extensions import Annotated
 
-from app import Message
 from app.services.chess_service import ChessService
-from app.services.connect_manager import ConnectionManager
+from app.services.game_manager import GameManager
 from web.dependecies import chess_service
-from web.dependecies.common import connection_manager
+from web.dependecies.common import game_manager
 
 app = FastAPI()
 app.add_middleware(
@@ -22,45 +18,25 @@ app.add_middleware(
 )
 
 
-@app.websocket("/ws")
-async def websocket_endpoint(
-    websocket: WebSocket,
+@app.post('/search_games')
+async def search_games(
     chess_service: Annotated[ChessService, Depends(chess_service)],
-    manager: Annotated[ConnectionManager, Depends(connection_manager)],
+    name: Annotated[str, Header()],
 ):
-    await manager.connect(websocket)
-    try:
-        while True:
-            data = await manager.get_message(websocket)
-            message = Message.parse_obj(data)
-            result = await chess_service.process(message)
-            print('response from server: ', result)
-            await manager.reply(result, websocket)
-    except WebSocketDisconnect as err:
-        manager.disconnect(websocket)
-    except ValidationError:
-        await websocket.send_text(orjson.dumps({
-            'WebSocketError': {
-                'message': 'unsupported event',
-            }
-        }))
-        manager.disconnect(websocket)
-    except Exception:
-        manager.disconnect(websocket)
+    return await chess_service.search_game(name)
 
 
-@app.websocket("/echo")
-async def echo_socket(websocket: WebSocket):
-    while True:
-        await websocket.accept()
-        data = await websocket.receive_text()
-        print('get from client:', data)
-        await websocket.send_text(f'echo from server: {data}')
+@app.post('/found_games')
+async def found_games(
+    chess_service: Annotated[ChessService, Depends(chess_service)],
+    name: Annotated[str, Header()],
+):
+    return await chess_service.found_games(name)
 
 
-@app.get("/active_connections")
-async def get_active_connections(manager: Annotated[ConnectionManager, Depends(connection_manager)]):
-    return {'online': [(client.name, client.ready_to_game) for client in manager.active_connections.values()]}
+@app.get("/ready_players")
+async def get_active_connections(manager: Annotated[GameManager, Depends(game_manager)]):
+    return manager.ready_players
 
 
 if __name__ == "__main__":

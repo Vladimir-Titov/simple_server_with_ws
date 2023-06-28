@@ -1,63 +1,34 @@
-import asyncio
-from uuid import uuid4
+from dataclasses import dataclass
 
-from app.models.common import EventType
-from app.models.message import Message
-from app.services.connect_manager import ConnectionManager
+from app.services.game_manager import GameManager, Game
 from board import BOARD
+
+
+@dataclass
+class Player:
+    name: str
+    ready_to_game: bool = False
 
 
 class ChessService:
 
     def __init__(self):
-        self.connection_manager = ConnectionManager()
+        self.game_manager = GameManager()
 
-    async def start_game(self, message: Message):
-        ready_player = self.connection_manager.active_connections[message.from_]
-        ready_player.ready_to_game = True
+    async def search_game(self, name: str):
+        if name in self.game_manager.games:
+            return self.game_manager.games[name]
+        games_copy = self.game_manager.games.copy()
+        for player_name, game in games_copy.items():
+            if player_name != name:
+                game.player2 = name
+                game.board = BOARD
+                game.is_filled = True
+                self.game_manager.games[name] = game
+                return self.game_manager.games[name]
 
-        while True:
-            await asyncio.sleep(0.01)
+        self.game_manager.games[name] = Game(player1=name)
+        return self.game_manager.games[name]
 
-            for player in self.connection_manager.active_connections.values():
-                if player.ready_to_game and ready_player.name != player.name:
-                    return {
-                        'event_type': EventType.START_GAME,
-                        'payload': {
-                            'you': message.from_,
-                            'opponent': player.name,
-                            'game_id': uuid4(),
-                        }
-                    }
-
-    def get_online_players(self):
-        return {
-            'event_type': EventType.ONLINE_PLAYERS,
-            'payload': {
-                'online_players': [
-                    {name: str(player.websocket.client)} for name, player in
-                    self.connection_manager.active_connections.items()
-                ],
-                'count_online_players': len(self.connection_manager.active_connections),
-            }
-        }
-
-    @staticmethod
-    def start_board_event():
-        return {
-            'event_type': EventType.START_BOARD,
-            'payload': {
-                'board': BOARD,
-            },
-        }
-
-    async def process(self, message: Message):
-        if message.event_type == EventType.ONLINE_PLAYERS:
-            return self.get_online_players()
-        elif message.event_type == EventType.START_GAME:
-            return await self.start_game(message)
-        elif message.event_type == EventType.MOVE:
-            return {}
-        elif message.event_type == EventType.START_BOARD:
-            return self.start_board_event()
-        return {'event_type': None, 'payload': 'unsupported type'}
+    async def found_games(self, name: str):
+        return self.game_manager[name]
