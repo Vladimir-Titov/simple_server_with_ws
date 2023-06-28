@@ -26,7 +26,7 @@ async def search_games(
     return await chess_service.search_game(name)
 
 
-@app.post('/found_games')
+@app.get('/found_games')
 async def found_games(
     chess_service: Annotated[ChessService, Depends(chess_service)],
     name: Annotated[str, Header()],

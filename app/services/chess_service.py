@@ -28,7 +28,8 @@ class ChessService:
                 return self.game_manager.games[name]
 
         self.game_manager.games[name] = Game(player1=name)
+        self.game_manager.ready_players[name] = Player(name, True)
         return self.game_manager.games[name]
 
     async def found_games(self, name: str):
-        return self.game_manager[name]
+        return self.game_manager.games.get(name, {})
