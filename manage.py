@@ -39,5 +39,12 @@ async def get_active_connections(manager: Annotated[GameManager, Depends(game_ma
     return manager.ready_players
 
 
+@app.post('/clear_server')
+async def clear_server(manager: Annotated[GameManager, Depends(game_manager)]):
+    manager.games.clear()
+    manager.ready_players.clear()
+    return manager.ready_players
+
+
 if __name__ == "__main__":
     uvicorn.run('manage:app', host='localhost', port=9000, loop='asyncio')
